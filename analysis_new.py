@@ -253,16 +253,18 @@ while bad_pattern_exist: # iterative loop
 	
 	First = False if First else First
 	bad_pattern_exist = True if len(iterDeleteSet) > 0 else False
+	
 	#####	save figures
-	plotting_new.saveFigures(IMaxList,MaxAllList,Round,infileName)
-	for m in MaxModeList:
-		plotting_new.saveFigures(MaxModeList[m]['Imax'],MaxModeList[m]['Dmax'],Round,infileName,m)
+	
+	#plotting_new.saveFigures(IMaxList,MaxAllList,Round,infileName)
+	#for m in MaxModeList:
+	#	plotting_new.saveFigures(MaxModeList[m]['Imax'],MaxModeList[m]['Dmax'],Round,infileName,m)
 	
 	#plotting_new.saveDeltaPatterns(D_Test_List,Round,NumNames=False,fileName=infileName)
+	
 	#####	save figures
 
 	Round+=1
-
 
 
 
@@ -287,6 +289,7 @@ for m in MaxModeList :
 	modeThreshold.update({m:np.average(d_vlist)+3*np.std(d_vlist)})
 	fileIO_new.Output(infileName.strip('.csv')+'_out.txt',deleteSet,wrongDies,modeWrongDies,modeThreshold,TestList)
 	
+
 
 	
 

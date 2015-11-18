@@ -224,7 +224,17 @@ def saveDeltaPatterns(DTestList,Round,NumNames=False,fileName=False):
 			fig.savefig('%s-%s.png'%(iln,irn),dpi=200)	
 		fig.clf()
 
-		
+def saveModeDies(all_die_list,fileName):
+	fig =plt.figure()
+	for ID in all_die_list:
+		die = all_die_list[ID]
+		for mode in die['Mode']:
+			vlist = die[mode]['Value']
+			subpltHist(fig,121,vlist,'ID:%d|%d'%(ID,mode),Xlabel='IDDQ (mA)',
+			binnum = 60,tx = 0.1,ty = 5)
+			subpltPlot(fig,122,vlist,'ID:%d|%d'%(ID,mode),Xlabel='Patterns',Ylabel='IDDQ')
+			fig.savefig(fileName.strip('.csv')+'_die%d_mode%d.png'%(ID,mode),dpi=200)
+			fig.clf()
 		
 
 #def saveChosenPatterns(TestList,NumNames,fileName):
