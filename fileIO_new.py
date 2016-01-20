@@ -6,6 +6,7 @@ import re
 import csv
 import numpy as np
 
+from operator import itemgetter
 
 def num(s):
 	if s != '':
@@ -138,7 +139,7 @@ def Read(fileName,read_type=False):
 				#m = num( m_tmp[0].strip("mode").strip("_iddq") ) if m_tmp and m_tmp2 else False# mode  #######################
 				#e = True if col.strip()!="" and col.strip() != "1" else False # exit
 					
-				if v and (m!=10 and m!=5 ): #we take m_tmp and m_tmp2 because m=0 is possible
+				if v :#and (m!=10 and m!=5 ): #we take m_tmp and m_tmp2 because m=0 is possible
 					try:
 						modeValues[m]['Name'].append(test_name_list[j])
 						modeValues[m]['Num'].append(num(test_num_list[j]))
@@ -166,7 +167,7 @@ def Read(fileName,read_type=False):
 		if re.findall('delay',name):
 			break 
 		m,v = column_valid_name(name)
-		if v and (m!=10 and m!=5 ):
+		if v :#and (m!=10 and m!=5 ):###################################################3
 			#print (number+'|'+name)
 			all_name_list.append(name)
 			all_num_list.append(number)
@@ -175,20 +176,22 @@ def Read(fileName,read_type=False):
 	return (all_die_list,all_name_list,all_num_list)
 	
 	
-def Output(	fileName,deleteSet,wrongDies,modeWrongDies,modeThreshold,TestList):
+def Output(	fileName,deleteSet,wrongDies,modeWrongDies,modeMean,modeThreshold,TestList):
 	outfile = open(fileName,'w')
 	
 	#patterns
 
 	print('------Tests deleted:%d------'%len(deleteSet),file=outfile,end='\r\n')
-	for num_name_tuple in list(deleteSet):
+	tmp = list(deleteSet)
+	tmp.sort(key=itemgetter(1))
+	for num_name_tuple in tmp:
 		num , name = num_name_tuple
 		print('Number/Name:%d/%s\r\n\tMaximum:%f\r\n\tAverage:%f\r\n\tStandard Deviation:%f'
 				%(int(num),name,
 				np.max(abs(TestList[num_name_tuple])),
 				np.average( abs(TestList[num_name_tuple]) ),
 				np.std(abs(TestList[num_name_tuple])) )
-				,file=outfile,end='\r\n')
+				,file=outfile,end='\r\n\r\n')
 	#dies
 	
 	#wrongID,wrongX,wrongY,wrongValue = wrongDies
@@ -201,6 +204,7 @@ def Output(	fileName,deleteSet,wrongDies,modeWrongDies,modeThreshold,TestList):
 		print('------Wrong dies (deleted): %d------'%len(wrongID),file=outfile,end='\r\n')
 		print('------Delta Iddq Threshold: %f(mA)------'%(modeThreshold[m]),file=outfile,end='\r\n')
 		
+		print('------Max Delta Iddq Average: %f(mA)------'%(modeMean[m]),file=outfile,end='\r\n')
 		for index,ID,wx,wy,wv in zip(range(len(wrongID)),wrongID,wrongX,wrongY,wrongValue):
 			print('ID:%d\r\n\tMaximum Delta:%f\r\n\tLocation:(%d,%d)'
 				%(int(ID),wv,int(wx),int(wy)) ,file=outfile,end='\r\n')

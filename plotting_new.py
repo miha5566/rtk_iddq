@@ -122,7 +122,7 @@ def subpltPlot(Fig,pos,values,title,Xlabel='Patterns',Ylabel='IDDQ',tx=False,ty=
 	ax.set_title(title)
 	ax.set_xlabel(Xlabel)
 	ax.set_ylabel(Ylabel)
-	ax.set_ylim([0 ,np.average(values)+50])
+	ax.set_ylim([np.average(values)-5 ,np.average(values)+5])
 	
 	
 #####################################################################
@@ -178,7 +178,7 @@ def saveFigures(IMaxList,MaxAllList,iter_round,fileName,mode=None):
 		figCor.savefig(fileName.strip('.csv')+'_round_%d'%(iter_round),dpi=200)	
 	else:
 		tripleCorrelation(figCor,IMaxList,MaxAllList,"Correlation of Maximum IDDQ and Maximum Delta IDDQ %d MODE %d"%(iter_round,mode))
-		figCor.savefig(fileName.strip('.csv')+'_round_%d_mode_%d'%(iter_round,mode),dpi=200)	
+		figCor.savefig(fileName.strip('.csv')+'_mode_%d_round_%d'%(mode,iter_round),dpi=200)	
 
 def savePatterns(TestList,fileName=False):
 	fig =plt.figure()
@@ -186,7 +186,7 @@ def savePatterns(TestList,fileName=False):
 		num,name = num_name
 		try:
 			subpltHist(fig,111,TestList[num_name],'%d,%s'%(num,name),Xlabel='IDDQ (mA)',
-			binnum = 60,tx = 0.1,ty = 5)
+			binnum = 60,tx = 100,ty = 5)
 		except:		
 			print(num,end='|')
 			print(name)
@@ -209,8 +209,8 @@ def saveDeltaPatterns(DTestList,Round,NumNames=False,fileName=False):
 		ilnum,ilname = il
 		irnum,irname = ir
 		
-		iln = ilname.strip('_iddq scan_IDDQ -1')+'|'+str(ilnum)
-		irn = irname.strip('_iddq scan_IDDQ -1')+'|'+str(irnum)
+		iln = ilname.strip('_iddq scan_IDDQ -1')+'_'+str(ilnum)
+		irn = irname.strip('_iddq scan_IDDQ -1')+'_'+str(irnum)
 		try:
 			subpltHist(fig,111,DTestList[(il,ir)],'%s-%s'%(iln,irn),Xlabel='Delta IDDQ (mA)',
 			binnum = 60,tx = 0.1,ty = 5)
@@ -229,13 +229,62 @@ def saveModeDies(all_die_list,fileName):
 	for ID in all_die_list:
 		die = all_die_list[ID]
 		for mode in die['Mode']:
-			vlist = die[mode]['Value']
-			subpltHist(fig,121,vlist,'ID:%d|%d'%(ID,mode),Xlabel='IDDQ (mA)',
-			binnum = 60,tx = 0.1,ty = 5)
-			subpltPlot(fig,122,vlist,'ID:%d|%d'%(ID,mode),Xlabel='Patterns',Ylabel='IDDQ')
-			fig.savefig(fileName.strip('.csv')+'_die%d_mode%d.png'%(ID,mode),dpi=200)
-			fig.clf()
+			if mode == 0 or mode == 3 or mode ==8 :		
+				vlist = die[mode]['Value']
+				subpltHist(fig,121,vlist,'ID:%d|%d'%(ID,mode),Xlabel='IDDQ (mA)',
+				binnum = 60,tx = 0.1,ty = 5)
+				subpltPlot(fig,122,vlist,'ID:%d|%d'%(ID,mode),Xlabel='Patterns',Ylabel='IDDQ')
+				fig.savefig(fileName.strip('.csv')+'_mode%d_die%d.png'%(mode,ID),dpi=200)
+				fig.clf()
 		
+
+def observeMode8Dies(all_die_list,fileName):
+	fig =plt.figure()
+	
+	ax = fig.add_subplot(111)
+	ax.ticklabel_format(useOffset=False) # Not using offset
+	ax.set_title('mode8_dies')
+	ax.set_xlabel('Patterns')
+	ax.set_ylabel('IDDQ(mA)')
+	
+	fig2 =plt.figure()
+	ax2 = fig2.add_subplot(111)
+	ax2.ticklabel_format(useOffset=False) # Not using offset
+	ax2.set_title('mode8_strange_dies')
+	ax2.set_xlabel('Patterns')
+	ax2.set_ylabel('IDDQ(mA)')
+	
+	
+	pool =[60,151,120,38]
+	for ID in all_die_list:
+		die = all_die_list[ID]
+		for mode in die['Mode']:
+			if mode ==8 :		
+				values = die[mode]['Value']
+				axx = np.array([i+1 for i in range(len(values))])
+				ax.plot(axx,values)
+				#ax.scatter(axx,values)
+				'''try:
+					if values[7]>values[8] or values[12]>values[13] or ID in pool:
+						print("shiftL ID:%d|%f"%(ID,np.average(values)))
+						ax2.plot(axx,values)
+						ax2.scatter(axx,values)
+					elif values[9]>values[8] or values[14]>values[13]:
+						print("shiftR ID:%d"%ID)
+						ax2.plot(axx,values)
+						ax2.scatter(axx,values)
+				except:
+					print("too short ID:%d"%ID)'''
+	
+	fig.savefig(fileName.strip('.csv')+'_mode8_observation.png',dpi=200)
+	fig2.savefig(fileName.strip('.csv')+'_mode8_observation_strange.png',dpi=200)
+	#fig.clf()
+	
+	
+	
+	
+	
+	#ax.set_ylim([np.average(values)-5 ,np.average(values)+5])
 
 #def saveChosenPatterns(TestList,NumNames,fileName):
 #	fig =plt.figure()
